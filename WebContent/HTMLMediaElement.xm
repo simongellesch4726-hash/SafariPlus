@@ -19,6 +19,7 @@
 // SOFTWARE.
 
 #import <xpc/xpc.h>
+#import <roothide.h>
 #import <dlfcn.h>
 
 NSFileHandle* logFileHandle;
@@ -304,13 +305,13 @@ static BOOL shouldEnable()
 	if(!isSafari())
 	{
 		logToFile(@"not safari, bye!");
-		return [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/Application Support/SafariPlus.bundle/.enableGlobalVideoDownloading"];
+		return [[NSFileManager defaultManager] fileExistsAtPath:jbroot(@"/Library/Application Support/SafariPlus.bundle/.enableGlobalVideoDownloading")];
 	}
 
 	//Cephei was originally used but doesn't work inside the
 	//XPC helper for some people so we use NSDictionary instead
 
-	NSDictionary* preferences = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist"];
+	NSDictionary* preferences = [NSDictionary dictionaryWithContentsOfFile:jbroot(@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist")];
 
 	NSNumber* tweakEnabledNum = [preferences objectForKey:@"tweakEnabled"];
 	NSNumber* downloadManagerEnabledNum = [preferences objectForKey:@"downloadManagerEnabled"];
