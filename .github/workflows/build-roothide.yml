@@ -69,13 +69,13 @@ jobs:
       - name: Verify Debian package
         run: |
           set -e
-          mapfile -t DEBS < <(find . -type f -name '*.deb' -not -path './.git/*')
-          if [ "${#DEBS[@]}" -ne 1 ]; then
-            echo "::error::Expected exactly one .deb, found ${#DEBS[@]}"
+          DEB_COUNT="$(find . -type f -name '*.deb' -not -path './.git/*' | wc -l | tr -d ' ')"
+          if [ "$DEB_COUNT" -ne 1 ]; then
+            echo "::error::Expected exactly one .deb, found $DEB_COUNT"
             find . -type f -name '*.deb' -print
             exit 1
           fi
-          DEB="${DEBS[0]}"
+          DEB="$(find . -type f -name '*.deb' -not -path './.git/*' | head -n 1)"
           dpkg-deb --info "$DEB"
           dpkg-deb --field "$DEB" Architecture | grep -Fx 'iphoneos-arm64e'
           dpkg-deb --contents "$DEB" | tee "$RUNNER_TEMP/package-contents.txt"
