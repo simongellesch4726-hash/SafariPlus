@@ -55,7 +55,7 @@ void reloadPreferences()
 - (NSDictionary*)preferencesDictionary
 {
 #if defined SIMJECT
-	return [NSDictionary dictionaryWithContentsOfFile:rPath(@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist")];
+	return [NSDictionary dictionaryWithContentsOfFile:rPath(jbroot(@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist"))];
 #endif
 	return [_userDefaults dictionaryRepresentation];
 }
@@ -272,12 +272,12 @@ void reloadPreferences()
 		//NSLog(@"libSandy user pref write: %d", denied);
 
 		//_userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"com.opa334.safariplusprefs"];
-		_userDefaults = [[NSUserDefaults alloc] initWithSuiteName:@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist"];
+		_userDefaults = [[NSUserDefaults alloc] initWithSuiteName:jbroot(@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist")];
 		[_userDefaults registerDefaults:defaults];
 	}
 	else
 	{
-		NSBundle* cepheiBundle = [NSBundle bundleWithPath:@"/Library/Frameworks/Cephei.framework"];
+		NSBundle* cepheiBundle = [NSBundle bundleWithPath:jbroot(@"/Library/Frameworks/Cephei.framework")];
 		[cepheiBundle load];
 
 		// this works because HBPreferences method signatures are somewhat similar to the ones of NSUserDefaults
@@ -293,7 +293,7 @@ void reloadPreferences()
 
 - (BOOL)unsandboxSafariEnabled
 {
-	return ![[NSFileManager defaultManager] fileExistsAtPath:@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.force_sandbox"];
+	return ![[NSFileManager defaultManager] fileExistsAtPath:jbroot(@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.force_sandbox")];
 }
 
 - (BOOL)isURLOnHTTPSExceptionsList:(NSURL*)URL
