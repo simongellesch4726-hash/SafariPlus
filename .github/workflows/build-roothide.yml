@@ -45,7 +45,8 @@ jobs:
 
       - name: Install iOS SDK
         run: |
-          git clone --depth 1 https://github.com/Tonwalter888/iOS-SDKs.git "$RUNNER_TEMP/iOS-SDKs"
+          git clone --depth 1 --filter=blob:none --sparse https://github.com/Tonwalter888/iOS-SDKs.git "$RUNNER_TEMP/iOS-SDKs"
+          git -C "$RUNNER_TEMP/iOS-SDKs" sparse-checkout set iPhoneOS17.5.sdk
           SDK_PATH="$RUNNER_TEMP/iOS-SDKs/iPhoneOS17.5.sdk"
           if [ ! -d "$SDK_PATH" ]; then
             echo "::error::Pinned iPhoneOS17.5.sdk was not found in Tonwalter888/iOS-SDKs"
@@ -64,7 +65,7 @@ jobs:
           git clone --depth 1 https://github.com/opa334/libSandy.git "$RUNNER_TEMP/libSandy"
           (
             cd "$RUNNER_TEMP/libSandy"
-            make clean
+            make TARGET=iphone:clang:17.5:15.0 ARCHS=arm64e clean
             make TARGET=iphone:clang:17.5:15.0 ARCHS=arm64e FINALPACKAGE=1 ONLY_LIBRARY=1
             cp -v .theos/obj/libsandy.dylib "$THEOS/lib/"
             cp -v libSandy.h "$THEOS/include/"
@@ -73,7 +74,7 @@ jobs:
           git clone --depth 1 https://github.com/opa334/libundirect.git "$RUNNER_TEMP/libundirect"
           (
             cd "$RUNNER_TEMP/libundirect"
-            make clean
+            make TARGET=iphone:clang:17.5:15.0 ARCHS=arm64e clean
             make TARGET=iphone:clang:17.5:15.0 ARCHS=arm64e FINALPACKAGE=1
             cp -v .theos/obj/libundirect.dylib "$THEOS/lib/"
             cp -v libundirect.h libundirect_dynamic.h libundirect_hookoverwrite.h "$THEOS/include/libundirect/"
