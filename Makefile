@@ -4,16 +4,19 @@ export NO_DEPENDENCIES ?= 0
 export DEBUG_LOGGING ?= 0
 export NO_LIBCOLORPICKER ?= 0
 
+# ROOTLESS=1 remains supported for conventional rootless packaging.
+# RootHide builds set THEOS_PACKAGE_SCHEME=roothide in the build environment.
 ifeq ($(ROOTLESS),1)
+export THEOS_PACKAGE_SCHEME ?= rootless
 export NO_DEPENDENCIES = 1
 endif
 
 ifeq ($(SIMJECT),1)
 export TARGET = simulator:clang:14.5:8.0
-export ARCHS = x86_64 i386
+export ARCHS = x86_64
 else
-export TARGET = iphone:clang:13.7:8.0
-export ARCHS = armv7 armv7s arm64 arm64e
+export TARGET = iphone:clang:17.5:15.0
+export ARCHS = arm64e
 endif
 
 ifeq ($(NO_DEPENDENCIES),1)

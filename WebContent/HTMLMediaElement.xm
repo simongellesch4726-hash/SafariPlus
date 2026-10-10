@@ -245,30 +245,42 @@ void _xpc_connection_set_event_handler(xpc_connection_t connection, xpc_handler_
 
 void initHooks()
 {
-	const char* webCorePath = "/System/Library/PrivateFrameworks/WebCore.framework/WebCore";
-
-	logToFile(@"About to init WebCore hooks!");
-
-	//iOS 12.2 and above (probably)
-	int hook1 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement12loadResourceERKN3WTF3URLERNS_11ContentTypeERKNS1_6StringE", WebCore_HTMLMediaElement_loadResource);
-	if(hook1 == 1000)
+	// These private WebCore symbols and their C++ signatures have not been
+	// validated against iOS 17. Avoid installing legacy hooks on newer systems.
+	if (@available(iOS 17.0, *))
 	{
-		//iOS 8 - 12.1.4
-		hook1 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement12loadResourceERKNS_3URLERNS_11ContentTypeERKN3WTF6StringE", WebCore_HTMLMediaElement_loadResource);
+		logToFile(@"Skipping legacy WebCore hooks on iOS 17+ until symbols are validated");
 	}
-	logToFile(@"hook1:%i", hook1);
-	int hook2 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElementD0Ev", WebCore_HTMLMediaElement_destructor);
-	logToFile(@"hook2:%i", hook2);
-	int hook3 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement15enterFullscreenEj", WebCore_HTMLMediaElement_enterFullscreen);
-	if(hook3 == 1000)
+	else
 	{
-		hook3 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement15enterFullscreenEv", WebCore_HTMLMediaElement_enterFullscreen_noArg);
+		const char* webCorePath = "/System/Library/PrivateFrameworks/WebCore.framework/WebCore";
+
+		logToFile(@"About to init WebCore hooks!");
+
+		// iOS 12.2 and above (probably)
+		int hook1 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement12loadResourceERKN3WTF3URLERNS_11ContentTypeERKNS1_6StringE", WebCore_HTMLMediaElement_loadResource);
+		if (hook1 == 1000)
+		{
+			// iOS 8 - 12.1.4
+			hook1 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement12loadResourceERKNS_3URLERNS_11ContentTypeERKN3WTF6StringE", WebCore_HTMLMediaElement_loadResource);
+		}
+		logToFile(@"hook1:%i", hook1);
+
+		int hook2 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElementD0Ev", WebCore_HTMLMediaElement_destructor);
+		logToFile(@"hook2:%i", hook2);
+
+		int hook3 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement15enterFullscreenEj", WebCore_HTMLMediaElement_enterFullscreen);
+		if (hook3 == 1000)
+		{
+			hook3 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement15enterFullscreenEv", WebCore_HTMLMediaElement_enterFullscreen_noArg);
+		}
+		logToFile(@"hook3:%i", hook3);
+
+		int hook4 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement14exitFullscreenEv", WebCore_HTMLMediaElement_exitFullscreen);
+		logToFile(@"hook4:%i", hook4);
 	}
 
-	logToFile(@"hook3:%i", hook3);
-	int hook4 = _PSHookFunctionCompat(webCorePath, "__ZN7WebCore16HTMLMediaElement14exitFullscreenEv", WebCore_HTMLMediaElement_exitFullscreen);
-	logToFile(@"hook4:%i", hook4);
-
+	// Keep the XPC bridge hook independent of the legacy WebCore hooks.
 	PSHookFunction((void*)&xpc_connection_set_event_handler, (void*)_xpc_connection_set_event_handler, (void**)&__xpc_connection_set_event_handler);
 }
 
@@ -304,13 +316,13 @@ static BOOL shouldEnable()
 	if(!isSafari())
 	{
 		logToFile(@"not safari, bye!");
-		return [[NSFileManager defaultManager] fileExistsAtPath:@"/Library/Application Support/SafariPlus.bundle/.enableGlobalVideoDownloading"];
+		return [[NSFileManager defaultManager] fileExistsAtPath:SPJBRootPath(@"/Library/Application Support/SafariPlus.bundle/.enableGlobalVideoDownloading")];
 	}
 
 	//Cephei was originally used but doesn't work inside the
 	//XPC helper for some people so we use NSDictionary instead
 
-	NSDictionary* preferences = [NSDictionary dictionaryWithContentsOfFile:@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist"];
+	NSDictionary* preferences = [NSDictionary dictionaryWithContentsOfFile:SPJBRootPath(@"/var/mobile/Library/Preferences/com.opa334.safariplusprefs.plist")];
 
 	NSNumber* tweakEnabledNum = [preferences objectForKey:@"tweakEnabled"];
 	NSNumber* downloadManagerEnabledNum = [preferences objectForKey:@"downloadManagerEnabled"];

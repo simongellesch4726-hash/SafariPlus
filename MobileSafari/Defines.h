@@ -22,8 +22,11 @@
 #define SPBundlePath [NSString stringWithFormat:@"%@/layout/Library/Application Support/SafariPlus.bundle", [CUR_DIR stringByDeletingLastPathComponent]]
 #define CURRENT_USER NSHomeDirectory().pathComponents[2]
 #define DEFAULT_DOWNLOAD_PATH [NSString stringWithFormat:@"/Users/%@/Desktop/SafariPlusFiles/Downloads", CURRENT_USER]
+#define SPJBRootPath(path) (path)
 #else
-#define SPBundlePath @"/Library/Application Support/SafariPlus.bundle"
+#import <roothide.h>
+#define SPJBRootPath(path) jbroot(path)
+#define SPBundlePath SPJBRootPath(@"/Library/Application Support/SafariPlus.bundle")
 #define SANDBOXED_DOWNLOAD_PATH [NSHomeDirectory() stringByAppendingString:@"/Documents/Downloads"]
 #define DEFAULT_DOWNLOAD_PATH @"/var/mobile/Downloads"
 #endif
@@ -36,7 +39,7 @@
 
 #define PREFERENCE_DOMAIN_NAME @"com.opa334.safariplusprefs"
 #define PREFERENCE_PLIST_NAME [PREFERENCE_DOMAIN_NAME stringByAppendingString:@".plist"]
-#define PREF_PLIST_PATH [NSString stringWithFormat:@"/var/mobile/Library/Preferences/%@.plist", PREFERENCE_DOMAIN_NAME]
+#define PREF_PLIST_PATH SPJBRootPath([NSString stringWithFormat:@"/var/mobile/Library/Preferences/%@.plist", PREFERENCE_DOMAIN_NAME])
 #define OTHER_PLIST_PATH_DEPRECATED @"/var/mobile/Library/Preferences/com.opa334.safariplusprefsOther.plist"	//NO LONGER USED
 #define COLOR_PLIST_PATH_DEPRECATED @"/var/mobile/Library/Preferences/com.opa334.safaripluscolorprefs.plist"	//NO LONGER USED
 
