@@ -58,7 +58,7 @@ jobs:
           test -d Preferences
           grep -q 'Architecture: iphoneos-arm64e' control
           grep -q 'ARCHS = arm64e' Makefile
-          grep -q 'TARGET = iphone:clang:17.0:15.0' Makefile
+          grep -q 'TARGET = iphone:clang:latest:15.0' Makefile
           echo "Project structure and requested arm64e configuration found."
 
       - name: Build package
