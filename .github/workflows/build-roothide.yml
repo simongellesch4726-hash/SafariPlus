@@ -29,9 +29,17 @@ jobs:
           brew update
           brew install dpkg ldid make
 
+      - name: Cache RootHide Theos
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/theos
+          key: ${{ runner.os }}-roothide-theos-safariplus-v1
+
       - name: Install RootHide Theos
         run: |
-          git clone --depth 1 https://github.com/roothide/theos.git "$THEOS"
+          if [ ! -f "$THEOS/makefiles/common.mk" ]; then
+            git clone --recursive --depth 1 https://github.com/roothide/theos.git "$THEOS"
+          fi
           test -f "$THEOS/makefiles/common.mk"
           mkdir -p "$THEOS/sdks"
 
