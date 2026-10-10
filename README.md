@@ -72,7 +72,7 @@ Various enhancements to Safari
 - Custom User Agent - Change the user agent for both mobile and desktop mode
 
 ## Compatibilty
-Any iOS device running iOS versions 8.0 to 14.8.1 should be supported!
+Upstream SafariPlus targets iOS 8.0–14.8.1. The iOS 17 / arm64e work in this fork is experimental and is not yet runtime-validated.
 
 ## Compiling
 
@@ -90,7 +90,9 @@ There are also some variables you can set when running make:
 
 `SIMJECT=1` to compile Safari Plus for an iOS simulator
 
-`ROOTLESS=1` to compile Safari Plus for rootless jailbreaks
+`ROOTLESS=1` to compile Safari Plus for conventional rootless jailbreaks (with RootHide Theos available for the `jbroot()` compatibility API)
+
+`THEOS_PACKAGE_SCHEME=roothide` to package for RootHide; this fork's iOS 17 CI workflow builds the arm64e RootHide package
 
 `NO_LIBCOLORPICKER=1` to compile Safari Plus without the Alderis/libCSColorPicker dependecy (color settings will be disabled if this flag is set)
 
