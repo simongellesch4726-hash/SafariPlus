@@ -13,9 +13,13 @@ static void readDylib()
 	if (!didSubstituteSearch)
 	{
 		MSImageRef ref = MSGetImageByName("/usr/lib/libsubstitute.dylib");
-		if(ref)
+		if (ref)
 		{
-			substitute_hook_functions = (int (*)(const struct substitute_function_hook *, size_t, struct substitute_function_hook_record **, int))make_sym_callable(MSFindSymbol(ref, "_substitute_hook_functions"));
+			void* symbol = MSFindSymbol(ref, "_substitute_hook_functions");
+			if (symbol)
+			{
+				substitute_hook_functions = (int (*)(const struct substitute_function_hook *, size_t, struct substitute_function_hook_record **, int))make_sym_callable(symbol);
+			}
 		}
 		didSubstituteSearch = true;
 	}
