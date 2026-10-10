@@ -56,12 +56,28 @@ jobs:
           echo "Installed SDK: $SDK_PATH"
           ls -1 "$THEOS/sdks"
 
-      - name: Install required tweak libraries
+      - name: Build required tweak libraries
         run: |
+          set -e
+          mkdir -p "$THEOS/lib" "$THEOS/include/libundirect"
+
           git clone --depth 1 https://github.com/opa334/libSandy.git "$RUNNER_TEMP/libSandy"
-          (cd "$RUNNER_TEMP/libSandy" && chmod +x install_to_theos.sh && ./install_to_theos.sh)
+          (
+            cd "$RUNNER_TEMP/libSandy"
+            make clean
+            make TARGET=iphone:clang:17.5:15.0 ARCHS=arm64e FINALPACKAGE=1 ONLY_LIBRARY=1
+            cp -v .theos/obj/libsandy.dylib "$THEOS/lib/"
+            cp -v libSandy.h "$THEOS/include/"
+          )
+
           git clone --depth 1 https://github.com/opa334/libundirect.git "$RUNNER_TEMP/libundirect"
-          (cd "$RUNNER_TEMP/libundirect" && chmod +x install_to_theos.sh && ./install_to_theos.sh)
+          (
+            cd "$RUNNER_TEMP/libundirect"
+            make clean
+            make TARGET=iphone:clang:17.5:15.0 ARCHS=arm64e FINALPACKAGE=1
+            cp -v .theos/obj/libundirect.dylib "$THEOS/lib/"
+            cp -v libundirect.h libundirect_dynamic.h libundirect_hookoverwrite.h "$THEOS/include/libundirect/"
+          )
 
       - name: Prepare WebKit headers
         run: |
@@ -104,6 +120,19 @@ jobs:
             echo "::error::RootHide package unexpectedly contains /var/jb"
             exit 1
           fi
+          PACKAGE_ROOT="$RUNNER_TEMP/safariplus-package-root"
+          mkdir -p "$PACKAGE_ROOT"
+          dpkg-deb --extract "$DEB" "$PACKAGE_ROOT"
+          while IFS= read -r -d '' file; do
+            if file "$file" | grep -q 'Mach-O'; then
+              echo "Checking arm64e slice: $file"
+              lipo -archs "$file" | tr ' ' '\\n' | grep -Fxq 'arm64e' || {
+                echo "::error::Mach-O file lacks arm64e slice: $file"
+                lipo -archs "$file" || true
+                exit 1
+              }
+            fi
+          done < <(find "$PACKAGE_ROOT" -type f -print0)
           mkdir -p artifacts
           cp "$DEB" artifacts/
 
