@@ -18,7 +18,7 @@ jobs:
     env:
       THEOS: ${{ github.workspace }}/theos
       THEOS_PACKAGE_SCHEME: roothide
-      TARGET: iphone:clang:latest:15.0
+      TARGET: iphone:clang:17.5:15.0
       ARCHS: arm64e
     steps:
       - name: Checkout repository
@@ -37,10 +37,10 @@ jobs:
 
       - name: Install iOS SDK
         run: |
-          git clone --depth 1 https://github.com/xybp888/iOS-SDKs.git "$RUNNER_TEMP/iOS-SDKs"
-          SDK_PATH="$(find "$RUNNER_TEMP/iOS-SDKs" -maxdepth 3 -type d -name 'iPhoneOS*.sdk' | sort -V | tail -n 1)"
+          git clone --depth 1 https://github.com/Tonwalter888/iOS-SDKs.git "$RUNNER_TEMP/iOS-SDKs"
+          SDK_PATH="$RUNNER_TEMP/iOS-SDKs/iPhoneOS17.5.sdk"
           if [ -z "$SDK_PATH" ]; then
-            echo "::error::No iPhoneOS SDK was found in xybp888/iOS-SDKs"
+            echo "::error::Pinned iPhoneOS17.5.sdk was not found in Tonwalter888/iOS-SDKs"
             find "$RUNNER_TEMP/iOS-SDKs" -maxdepth 3 -type d | head -100
             exit 1
           fi
@@ -71,7 +71,7 @@ jobs:
           test -d Preferences
           grep -q 'Architecture: iphoneos-arm64e' control
           grep -q 'ARCHS = arm64e' Makefile
-          grep -q 'TARGET = iphone:clang:latest:15.0' Makefile
+          grep -q 'TARGET = iphone:clang:17.5:15.0' Makefile
           echo "Project structure and requested arm64e configuration found."
 
       - name: Build package
