@@ -39,7 +39,7 @@ jobs:
         run: |
           git clone --depth 1 https://github.com/Tonwalter888/iOS-SDKs.git "$RUNNER_TEMP/iOS-SDKs"
           SDK_PATH="$RUNNER_TEMP/iOS-SDKs/iPhoneOS17.5.sdk"
-          if [ -z "$SDK_PATH" ]; then
+          if [ ! -d "$SDK_PATH" ]; then
             echo "::error::Pinned iPhoneOS17.5.sdk was not found in Tonwalter888/iOS-SDKs"
             find "$RUNNER_TEMP/iOS-SDKs" -maxdepth 3 -type d | head -100
             exit 1
