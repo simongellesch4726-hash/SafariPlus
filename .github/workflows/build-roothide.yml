@@ -48,6 +48,19 @@ jobs:
           echo "Installed SDK: $SDK_PATH"
           ls -1 "$THEOS/sdks"
 
+      - name: Install required tweak libraries
+        run: |
+          git clone --depth 1 https://github.com/opa334/libSandy.git "$RUNNER_TEMP/libSandy"
+          (cd "$RUNNER_TEMP/libSandy" && chmod +x install_to_theos.sh && ./install_to_theos.sh)
+          git clone --depth 1 https://github.com/opa334/libundirect.git "$RUNNER_TEMP/libundirect"
+          (cd "$RUNNER_TEMP/libundirect" && chmod +x install_to_theos.sh && ./install_to_theos.sh)
+
+      - name: Prepare WebKit headers
+        run: |
+          chmod +x ./get_webkit.sh
+          ./get_webkit.sh
+          test -f .WebKit/usr/local/include/wtf/RefPtr.h
+
       - name: Validate project configuration
         run: |
           test -f Makefile
