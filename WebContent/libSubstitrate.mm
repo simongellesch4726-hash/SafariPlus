@@ -43,6 +43,9 @@ int PSHookFunction(void *func, void *replace, void **result)
 }
 
 int PSHookFunction1(MSImageRef ref, const char *symbol, void *replace, void **result) {
+	if (!ref || !symbol || !replace) {
+		return 1000;
+	}
 	return PSHookFunction(MSFindSymbol(ref, symbol), replace, result);
 }
 
@@ -51,7 +54,13 @@ int PSHookFunction2(MSImageRef ref, const char *symbol, void *replace) {
 }
 
 int PSHookFunction3(const char *image, const char *symbol, void *replace, void **result) {
+	if (!image || !symbol || !replace) {
+		return 1000;
+	}
 	MSImageRef imageRef = MSGetImageByName(image);
+	if (!imageRef) {
+		return 1000;
+	}
 	void* symbolPtr = MSFindSymbol(imageRef, symbol);
 	return PSHookFunction(symbolPtr, replace, result);
 }
